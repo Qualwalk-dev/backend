@@ -1,0 +1,29 @@
+version: '3.3'
+services:
+  keycloak:
+    image: jboss/keycloak:16.1.1
+    ports:
+      - 8180:8080
+    volumes:
+      - /opt/keycloak:/opt/jboss/keycloak/standalone/data/
+    environment:
+      - KEYCLOAK_USER=qualwalk-admin
+      - KEYCLOAK_PASSWORD=Qualwalk123_
+      - PROXY_ADDRESS_FORWARDING=true
+      - DB_VENDOR=POSTGRES
+      - DB_ADDR=qualwalk.cvyxnwpi8kv7.ap-south-1.rds.amazonaws.com
+      - DB_PORT=5432
+      - DB_DATABASE=keycloak
+      - DB_USER=qualwalk
+      - DB_PASSWORD=Qualwalk123_
+      - JAVA_OPTS=-Xms64m -Xmx1G -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=1G
+      - JAVA_OPTS_APPEND=-Djboss.as.management.blocking.timeout=600
+  qualwalk:
+    image: backend:dev
+    restart: unless-stopped
+    depends_on:
+      - keycloak
+    ports:
+      - 9000:9000
+    environment:
+      - "SPRING_PROFILES_ACTIVE=dev"
